@@ -29,14 +29,14 @@ services:
   nginx:
     image: wodby/drupal-nginx
     environment:
-      NGINX_SERVER_NAME: ft.home tar.home
+      NGINX_SERVER_NAME: ft.home tar.home # Local site domains.
       NGINX_UPSTREAM_NAME: php
 #      NGINX_DOCROOT: public # Relative path inside the /var/www/html/ directory.
       DRUPAL_VERSION: 7 # Allowed: 7, 8.
     volumes_from:
       - php
     ports:
-      - "7100:80"
+      - "7000:80"
 
   pma:
     image: phpmyadmin/phpmyadmin
@@ -47,12 +47,12 @@ services:
       PHP_UPLOAD_MAX_FILESIZE: 1G
       PHP_MAX_INPUT_VARS: 1G
     ports:
-     - "7101:80"
+     - "7001:80"
 
   mailhog:
     image: mailhog/mailhog
     ports:
-      - "7102:8025"
+      - "7002:8025"
 
 #  redis:
 #    image: redis:3.2-alpine
