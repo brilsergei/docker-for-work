@@ -1,0 +1,1 @@
+Base docker configuration for tour and train site to install theme on local environment.
