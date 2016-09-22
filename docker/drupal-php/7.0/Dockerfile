@@ -146,8 +146,9 @@ COPY 00_xdebug.ini /etc/php7/conf.d/
 COPY php-fpm.conf /etc/php7/
 
 # Add default drush aliases
-RUN mkdir -p /etc/drush/site-aliases
-COPY default.aliases.drushrc.php /etc/drush/site-aliases/
+RUN mkdir -p /home/host-user/.drush
+COPY default.aliases.drushrc.php /home/host-user/.drush/train.aliases.drushrc.php
+RUN chown -R $HOST_UID:$HOST_GID /home/host-user/.drush
 
 # Create work dir
 RUN mkdir -p /var/www/html && chown -R $HOST_UID:$HOST_GID /var/www
