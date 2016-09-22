@@ -11,7 +11,7 @@ services:
       - ./docker-runtime/mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
 
   php:
-    image: local/tour-php:5.6 # Specify name you set to custom php image.
+    image: local/tour-php # Specify name you set to custom php image.
     environment:
       PHP_SITE_NAME_FT: ft
       PHP_HOST_NAME_FT: ft.home:7000
