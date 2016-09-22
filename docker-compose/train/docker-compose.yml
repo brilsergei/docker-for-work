@@ -4,20 +4,17 @@ services:
   mariadb:
     image: wodby/drupal-mariadb
     environment:
-      MYSQL_RANDOM_ROOT_PASSWORD: 1
-      MYSQL_DATABASE: drupal
-      MYSQL_USER: drupal
-      MYSQL_PASSWORD: drupal
+      MYSQL_ROOT_PASSWORD: root
 #    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # The simple way to override the mariadb config.
     volumes:
       - ./docker-runtime/mariadb:/var/lib/mysql
-#      - ./docker-runtime/mariadb-init:/docker-entrypoint-initdb.d # Place init .sql file(s) here.
+      - ./docker-runtime/mariadb-init:/docker-entrypoint-initdb.d # Place dump files here to make theme available inside the container.
 
   php:
-    image: local/drupal-php:7.0 # Allowed: 7.0, 5.6.
+    image: local/train-php # Specify name you set to custom php image.
     environment:
-      PHP_SITE_NAME: drupal
-      PHP_HOST_NAME: localhost:8000
+      PHP_SITE_NAME_RN: rn
+      PHP_HOST_NAME_RN: rn.home:8000
 #      PHP_DOCROOT: public # Relative path inside the /var/www/html/ directory.
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
@@ -27,7 +24,7 @@ services:
   nginx:
     image: wodby/drupal-nginx
     environment:
-      NGINX_SERVER_NAME: localhost
+      NGINX_SERVER_NAME: rn.home
       NGINX_UPSTREAM_NAME: php
 #      NGINX_DOCROOT: public # Relative path inside the /var/www/html/ directory.
       DRUPAL_VERSION: 8 # Allowed: 7, 8.
@@ -40,8 +37,8 @@ services:
     image: phpmyadmin/phpmyadmin
     environment:
       PMA_HOST: mariadb
-      PMA_USER: drupal
-      PMA_PASSWORD: drupal
+      PMA_USER: root
+      PMA_PASSWORD: root
       PHP_UPLOAD_MAX_FILESIZE: 1G
       PHP_MAX_INPUT_VARS: 1G
     ports:
