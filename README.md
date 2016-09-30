@@ -53,7 +53,7 @@ It contains source files for php images and base docker-compose.yml.
 
     `git clone git@bitbucket.org:sergei_bril/tours.git .`
     
-    Use default.sites.php, example.settings.php, example.drushrc.php files as base to configure the sites.
+    Use default.sites.php, example.settings.php, example.drushrc.php files as base to configure the sites. Database username is root, password can be configured in docker-compose.yml (default is root), host is mariadb.
     
 4. Configure Drush.
 
@@ -128,7 +128,7 @@ It contains source files for php images and base docker-compose.yml.
 
     `git clone git@bitbucket.org:sergei_bril/train_booking.git .`
     
-    and open [http://rn.home:8000](http://rn.home:8000) to install Drupal 8.
+    and open [http://rn.home:8000](http://rn.home:8000) to install Drupal 8. Database username is root, password can be configured in docker-compose.yml (default it root). When configure database, set `mariadb` as database host in Advanced section.
     
     PhpMyAdmin is available at [http://localhost:8001](http://localhost:8001)`.
    
