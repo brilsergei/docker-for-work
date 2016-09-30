@@ -20,6 +20,7 @@ It contains source files for php images and base docker-compose.yml.
     `cp docker-for-work/docker-compose/tour/docker-compose.yml path/to/site-root`
     
     The file is ready to use. But some options can be changed to your convenience.
+    
     Create directory where you can place database backup so, that it will be available inside the mariadb container.
     
     `cd path/to/site-root && mkdir docker-runtime && mkdir docker-runtime/mariadb-init`
@@ -29,6 +30,7 @@ It contains source files for php images and base docker-compose.yml.
     `docker-compose up -d`
     
     Use it every time when you want to run them to make your sites available.
+    
     Add new record to your /etc/hosts file to make the site domain matching to localhost.
     
     `127.0.0.1      ft.home`
@@ -39,20 +41,23 @@ It contains source files for php images and base docker-compose.yml.
     Open [http://ft.home:7000](http://ft.home:7000) in your browser, it must show `File not found` error.
     
 3. Import backups, download site source code from repository and create settings.php file.
-    PhpMyAdmin is available at [http://localhost:7001](http://localhost:7001). Place database backups at `path/to/site-root/docker-runtime/mariadb-init/`.
-    Run
+
+    PhpMyAdmin is available at [http://localhost:7001](http://localhost:7001). Place database backups at `path/to/site-root/docker-runtime/mariadb-init/` then run
     
     `docker-compose exec mariadb sh`
     
     to open shell inside the container. Here you can use command line mysql client to import database backups.
-    They are placed at `/docker-entrypoint-initdb.d`. Enter `exit` for exit from container shell.
+    They are placed at `/docker-entrypoint-initdb.d`. Enter `exit` for exit from the container shell.
+    
     Now clone repository into the site root directory.
 
     `git clone git@bitbucket.org:sergei_bril/tours.git .`
     
     Use default.sites.php, example.settings.php, example.drushrc.php files as base to configure the sites.
     
-4. Drush is installed to the php image and will be available only from the php container.
+4. Configure Drush.
+
+    Drush is installed to the php image and will be available from the php container only.
 
     `docker-compose exec --user 1000 php drush help`
     
@@ -81,6 +86,7 @@ It contains source files for php images and base docker-compose.yml.
     `cp docker-for-work/docker-compose/train/docker-compose.yml path/to/site-root`
     
     The file is ready to use. But some options can be changed to your convenience.
+    
     Create directory where you can place database backup so, that it will be available inside the mariadb container.
     
     `cd path/to/site-root && mkdir docker-runtime && mkdir docker-runtime/mariadb-init`
@@ -90,6 +96,7 @@ It contains source files for php images and base docker-compose.yml.
     `docker-compose up -d`
     
     Use it every time when you want to run them to make your sites available.
+    
     Add new record to your /etc/hosts file to make the site domain matching to localhost.
     
     `127.0.0.1      rn.home`
@@ -97,7 +104,9 @@ It contains source files for php images and base docker-compose.yml.
     Here `rn.home` corresponds to `PHP_HOST_NAME_RN` and `NGINX_SERVER_NAME` options in the docker-compose.yml file.
     Open [http://rn.home:8000](http://rn.home:8000) in your browser, it must show `File not found` error.
   
-3. Drush and Console are installed to the php image and will be available only from the php container.
+3. Configure Drush and Console.
+
+    Drush and Console are installed to the php image and will be available only from the php container.
    
    `docker-compose exec --user 1000 php drush cr`
    
@@ -115,9 +124,11 @@ It contains source files for php images and base docker-compose.yml.
    
    `dc-drupal list`
    
-4. Now clone the repository
+4. Now clone the repository to the site root
 
     `git clone git@bitbucket.org:sergei_bril/train_booking.git .`
     
-    and open [http://rn.home:8000](http://rn.home:8000) to install Drupal 8. PhpMyAdmin is available at [http://localhost:8001](http://localhost:8001)`.
+    and open [http://rn.home:8000](http://rn.home:8000) to install Drupal 8.
+    
+    PhpMyAdmin is available at [http://localhost:8001](http://localhost:8001)`.
    
