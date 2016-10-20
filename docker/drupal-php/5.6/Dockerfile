@@ -164,5 +164,6 @@ RUN composer global require hirak/prestissimo:^0.3 --optimize-autoloader && \
     rm -rf ~/.composer/.cache && \
     drupal init --override
 
+USER root
 COPY docker-entrypoint.sh /usr/local/bin/
 CMD docker-entrypoint.sh
