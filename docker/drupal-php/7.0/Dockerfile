@@ -1,27 +1,18 @@
-FROM alpine:3.4
+FROM alpine:edge
 MAINTAINER brilsergei <brilsergei@gmail.com>
 ARG HOST_UID=1000
 ARG HOST_GID=1000
 
-# Create user www-data
-RUN addgroup -g 82 -S www-data && \
-	adduser -u 82 -D -S -G www-data www-data
-
-# Create group and user with same GID and UID as on host machine and assign it www-data group
-RUN addgroup -g $HOST_GID host-group && \
-	adduser -u $HOST_UID -D -G host-group host-user && \
-	adduser host-user www-data
-
-
 # Install packages
-RUN echo '@testing http://nl.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && \
-    echo '@community http://nl.alpinelinux.org/alpine/edge/community' >> /etc/apk/repositories && \
+RUN echo 'http://alpine.gliderlabs.com/alpine/edge/main' > /etc/apk/repositories && \
+    echo 'http://alpine.gliderlabs.com/alpine/edge/community' >> /etc/apk/repositories && \
+    echo 'http://alpine.gliderlabs.com/alpine/edge/testing' >> /etc/apk/repositories && \
 
     apk add --update \
-
-        # Base packages
-        openssl \
+        libressl \
         ca-certificates \
+        openssh-client \
+        rsync \
         git \
         curl \
         wget \
@@ -35,46 +26,47 @@ RUN echo '@testing http://nl.alpinelinux.org/alpine/edge/testing' >> /etc/apk/re
         build-base \
         autoconf \
         libtool \
-        php7-dev@testing \
+        php7-dev \
         pcre-dev \
         imagemagick-dev \
 
         # PHP packages
-        php7@community \
-        php7-fpm@community \
-        php7-opcache@community \
-        php7-session@community \
-        php7-xml@community \
-        php7-ctype@community \
-        php7-ftp@community \
-        php7-gd@community \
-        php7-json@community \
-        php7-posix@community \
-        php7-curl@community \
-        php7-dom@community \
-        php7-pdo@community \
-        php7-pdo_mysql@community \
-        php7-sockets@community \
-        php7-zlib@community \
-        php7-mcrypt@community \
-        php7-mysqli@community \
-        php7-bz2@community \
-        php7-phar@community \
-        php7-openssl@community \
-        php7-posix@community \
-        php7-zip@community \
-        php7-calendar@community \
-        php7-iconv@community \
-        php7-imap@community \
-        php7-soap@community \
-        php7-dev@community \
-        php7-pear@community \
-        php7-redis@testing \
-        php7-mbstring@community \
-        php7-xdebug@testing \
-        php7-exif@community \
-        php7-xsl@community \
-        php7-ldap@community \
+        php7 \
+        php7-fpm \
+        php7-opcache \
+        php7-session \
+        php7-xml \
+        php7-ctype \
+        php7-ftp \
+        php7-gd \
+        php7-json \
+        php7-posix \
+        php7-curl \
+        php7-dom \
+        php7-pdo \
+        php7-pdo_mysql \
+        php7-sockets \
+        php7-zlib \
+        php7-mcrypt \
+        php7-mysqli \
+        php7-bz2 \
+        php7-phar \
+        php7-openssl \
+        php7-posix \
+        php7-zip \
+        php7-calendar \
+        php7-iconv \
+        php7-imap \
+        php7-soap \
+        php7-dev \
+        php7-pear \
+        php7-redis \
+        php7-mbstring \
+        php7-xdebug \
+        php7-exif \
+        php7-xsl \
+        php7-ldap \
+        php7-bcmath \
         && \
 
     # Create symlinks for backward compatibility
@@ -85,7 +77,6 @@ RUN echo '@testing http://nl.alpinelinux.org/alpine/edge/testing' >> /etc/apk/re
     sed -ie 's/-n//g' /usr/bin/pecl && \
     yes | pecl install imagick && \
     echo 'extension=imagick.so' > /etc/php7/conf.d/imagick.ini && \
-    rm -rf /tmp/pear && \
 
     # Install uploadprogess
     cd /tmp/ && wget https://github.com/Jan-E/uploadprogress/archive/master.zip && \
@@ -97,21 +88,14 @@ RUN echo '@testing http://nl.alpinelinux.org/alpine/edge/testing' >> /etc/apk/re
     cd .. && rm -rf ./master.zip ./uploadprogress-master && \
 
     # Install composer
-    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
-
-    # Add composer parallel install plugin
-    composer global require "hirak/prestissimo:^0.3" && \
+    curl -sS https://getcomposer.org/installer | php7 -- --install-dir=/usr/local/bin --filename=composer && \
 
     # Install drush
-    git clone -b 8.x https://github.com/drush-ops/drush.git /usr/local/src/drush && \
-    ln -sf /usr/local/src/drush/drush /usr/bin/drush && \
-    ls -la /usr/local/src/drush && \
-    (cd /usr/local/src/drush; composer install) && \
-    rm -rf /usr/local/src/drush/.git && \
+    php -r "readfile('https://s3.amazonaws.com/files.drush.org/drush.phar');" > /usr/local/bin/drush && \
+    chmod +x /usr/local/bin/drush && \
 
     # Install drupal-console
-    curl https://drupalconsole.com/installer -L -o drupal.phar && \
-    mv drupal.phar /usr/local/bin/drupal && \
+    curl https://drupalconsole.com/installer -o /usr/local/bin/drupal && \
     chmod +x /usr/local/bin/drupal && \
     drupal init --override && \
     mkdir -p /home/host-user/.console && \
@@ -119,9 +103,19 @@ RUN echo '@testing http://nl.alpinelinux.org/alpine/edge/testing' >> /etc/apk/re
     chown -R $HOST_UID:$HOST_GID /home/host-user && \
 
     # Cleanup
-    apk del --purge *-dev build-base autoconf libtool && \
-    rm -rf /usr/include/php /usr/lib/php/build && \
-    rm -rf /var/cache/apk/*
+    apk del --purge \
+        *-dev \
+        build-base \
+        autoconf \
+        libtool \
+        && \
+
+    rm -rf \
+        /usr/include/php \
+        /usr/lib/php/build \
+        /var/cache/apk/* \
+        /tmp/* \
+        /root/.composer
 
 # Configure php.ini
 RUN sed -i \
@@ -140,22 +134,36 @@ RUN sed -i \
 
     echo "error_log = \"/proc/self/fd/2\"" | tee -a /etc/php7/php.ini
 
-RUN rm /etc/php7/conf.d/xdebug.ini
+# Copy PHP configs
 COPY 00_opcache.ini /etc/php7/conf.d/
 COPY 00_xdebug.ini /etc/php7/conf.d/
 COPY php-fpm.conf /etc/php7/
 
 # Add default drush aliases
-RUN mkdir -p /home/host-user/.drush
-COPY default.aliases.drushrc.php /home/host-user/.drush/train.aliases.drushrc.php
-RUN chown -R $HOST_UID:$HOST_GID /home/host-user/.drush
+RUN mkdir -p /etc/drush/site-aliases
+COPY default.aliases.drushrc.php /etc/drush/site-aliases/
+
+# Create user www-data
+RUN addgroup -g 82 -S www-data && \
+	adduser -u 82 -D -S -G www-data www-data
+
+# Create group and user with same GID and UID as on host machine and assign it www-data group
+RUN addgroup -g $HOST_GID host-group && \
+	adduser -u $HOST_UID -D -G host-group host-user && \
+	adduser host-user www-data
 
 # Create work dir
-RUN mkdir -p /var/www/html && chown -R $HOST_UID:$HOST_GID /var/www
+RUN mkdir -p /var/www/html && \
+    chown -R $HOST_UID:$HOST_GID /var/www
+
 WORKDIR /var/www/html
 VOLUME /var/www/html
-
 EXPOSE 9000
 
+# Init host-user user
+USER host-user
+RUN composer global require hirak/prestissimo:^0.3 --optimize-autoloader && \
+    rm -rf ~/.composer/.cache
+
 COPY docker-entrypoint.sh /usr/local/bin/
-CMD "docker-entrypoint.sh"
+CMD docker-entrypoint.sh
