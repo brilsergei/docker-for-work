@@ -16,6 +16,9 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/edge/main' > /etc/apk/repositories
         git \
         curl \
         wget \
+        gzip \
+        tar \
+        patch \
         perl \
         pcre \
         imap \
@@ -35,20 +38,22 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/edge/main' > /etc/apk/repositories
         php7-fpm \
         php7-opcache \
         php7-session \
+        php7-dom \
         php7-xml \
+        php7-xmlreader \
         php7-ctype \
         php7-ftp \
         php7-gd \
         php7-json \
         php7-posix \
         php7-curl \
-        php7-dom \
         php7-pdo \
         php7-pdo_mysql \
         php7-sockets \
         php7-zlib \
         php7-mcrypt \
         php7-mysqli \
+        php7-sqlite3 \
         php7-bz2 \
         php7-phar \
         php7-openssl \
@@ -67,6 +72,9 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/edge/main' > /etc/apk/repositories
         php7-xsl \
         php7-ldap \
         php7-bcmath \
+        php7-memcached \
+        php7-oauth \
+        php7-apcu \
         && \
 
     # Create symlinks for backward compatibility
@@ -90,17 +98,18 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/edge/main' > /etc/apk/repositories
     # Install composer
     curl -sS https://getcomposer.org/installer | php7 -- --install-dir=/usr/local/bin --filename=composer && \
 
+    # Install PHPUnit
+    curl -sSL https://phar.phpunit.de/phpunit.phar -o phpunit.phar && \
+    chmod +x phpunit.phar && \
+    mv phpunit.phar /usr/local/bin/phpunit && \
+
     # Install drush
     php -r "readfile('https://s3.amazonaws.com/files.drush.org/drush.phar');" > /usr/local/bin/drush && \
     chmod +x /usr/local/bin/drush && \
 
-    # Install drupal-console
+    # Install Drupal Console
     curl https://drupalconsole.com/installer -o /usr/local/bin/drupal && \
     chmod +x /usr/local/bin/drupal && \
-    drupal init --override && \
-    mkdir -p /home/host-user/.console && \
-    cp /root/.console/config.yml /home/host-user/.console/ && \
-    chown -R $HOST_UID:$HOST_GID /home/host-user && \
 
     # Cleanup
     apk del --purge \
@@ -123,6 +132,7 @@ RUN sed -i \
         -e "s/^;date.timezone.*/date.timezone = UTC/" \
         -e "s/^memory_limit.*/memory_limit = -1/" \
         -e "s/^max_execution_time.*/max_execution_time = 300/" \
+        -e "s/^; max_input_vars.*/max_input_vars = 2000/" \
         -e "s/^post_max_size.*/post_max_size = 512M/" \
         -e "s/^upload_max_filesize.*/upload_max_filesize = 512M/" \
         -e "s/^error_reporting.*/error_reporting = E_ALL/" \
@@ -163,7 +173,8 @@ EXPOSE 9000
 # Init host-user user
 USER host-user
 RUN composer global require hirak/prestissimo:^0.3 --optimize-autoloader && \
-    rm -rf ~/.composer/.cache
+    rm -rf ~/.composer/.cache && \
+    drupal init --override
 
 USER root
 COPY docker-entrypoint.sh /usr/local/bin/

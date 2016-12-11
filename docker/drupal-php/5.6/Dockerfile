@@ -17,6 +17,9 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/v3.4/main' > /etc/apk/repositories
         git \
         curl \
         wget \
+        gzip \
+        tar \
+        patch \
         perl \
         pcre \
         imap \
@@ -37,7 +40,9 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/v3.4/main' > /etc/apk/repositories
         php5-cli \
         php5-fpm \
         php5-opcache \
+        php5-dom \
         php5-xml \
+        php5-xmlreader \
         php5-ctype \
         php5-ftp \
         php5-gd \
@@ -71,6 +76,8 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/v3.4/main' > /etc/apk/repositories
         php5-xsl \
         php5-ldap \
         php5-bcmath \
+        php5-memcached \
+        php5-apcu \
         && \
 
     # Install uploadprogress and imagick
@@ -81,11 +88,16 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/v3.4/main' > /etc/apk/repositories
     echo 'extension=uploadprogress.so' > /etc/php5/conf.d/uploadprogress.ini && \
     rm -rf /tmp/pear && \
 
+    # Disable Xdebug
+    rm /etc/php5/conf.d/xdebug.ini && \
+
     # Install composer
     curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && \
 
-    # Add composer parallel install plugin
-    composer global require "hirak/prestissimo:^0.3" && \
+    # Install PHPUnit
+    curl -sSL https://phar.phpunit.de/phpunit.phar -o phpunit.phar && \
+    chmod +x phpunit.phar && \
+    mv phpunit.phar /usr/local/bin/phpunit && \
 
     # Install drush
     php -r "readfile('https://s3.amazonaws.com/files.drush.org/drush.phar');" > /usr/local/bin/drush && \
@@ -94,10 +106,6 @@ RUN echo 'http://alpine.gliderlabs.com/alpine/v3.4/main' > /etc/apk/repositories
     # Install Drupal Console
     curl https://drupalconsole.com/installer -o /usr/local/bin/drupal && \
     chmod +x /usr/local/bin/drupal && \
-    drupal init --override && \
-    mkdir -p /home/host-user/.console && \
-    cp /root/.console/config.yml /home/host-user/.console/ && \
-    chown -R $HOST_UID:$HOST_GID /home/host-user && \
 
     # Cleanup
     apk del --purge \
@@ -120,6 +128,7 @@ RUN sed -i \
         -e "s/^;date.timezone.*/date.timezone = UTC/" \
         -e "s/^memory_limit.*/memory_limit = -1/" \
         -e "s/^max_execution_time.*/max_execution_time = 300/" \
+        -e "s/^; max_input_vars.*/max_input_vars = 2000/" \
         -e "s/^post_max_size.*/post_max_size = 512M/" \
         -e "s/^upload_max_filesize.*/upload_max_filesize = 512M/" \
         -e "s/^;always_populate_raw_post_data.*/always_populate_raw_post_data = -1/" \
@@ -153,12 +162,11 @@ RUN addgroup -g $HOST_GID host-group && \
 # Create work dir
 RUN mkdir -p /var/www/html && \
     chown -R $HOST_UID:$HOST_GID /var/www
-
 WORKDIR /var/www/html
 VOLUME /var/www/html
 EXPOSE 9000
 
-# Init www-data user
+# Init host-user user
 USER host-user
 RUN composer global require hirak/prestissimo:^0.3 --optimize-autoloader && \
     rm -rf ~/.composer/.cache && \
