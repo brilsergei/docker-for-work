@@ -7,21 +7,21 @@ It contains source files for php images and base docker-compose.yml.
 
 2. Clone this repository. Note that destination directory is not the site root.
   
-    `git clone git@github.com:brilsergei/docker-for-work.git`
+    `git clone https://github.com/brilsergei/docker-for-work.git`
 
 **Configure tour sites**
 
 1. Compile php image.
     
-    `docker build -t local/tour-php docker-for-work/drupal-php/5.6`
+    `docker build -t local/tour-php docker-for-work/docker/drupal-php/5.6`
     
 2. Prepare site root directory and run docker containers.
 
     `cp docker-for-work/docker-compose/tour/docker-compose.yml path/to/site-root`
     
-    The file is ready to use. But some options can be changed to your convenience.
+    The file is ready to use, but some options can be changed to your convenience.
     
-    Create directory where you can place database backup so, that it will be available inside the mariadb container.
+    Create directory where you can place a database backup so, that it will be available inside the mariadb container.
     
     `cd path/to/site-root && mkdir docker-runtime && mkdir docker-runtime/mariadb-init`
     
@@ -61,7 +61,7 @@ It contains source files for php images and base docker-compose.yml.
 
     `docker-compose exec --user 1000 php drush help`
     
-    You can create alias for this command in ~/.bashrc file. Open ~/.bashrc in a editor, add next line to the end of the file:
+    You can create alias for this command in ~/.bashrc file. Open ~/.bashrc with an editor and add the next line to the end of the file:
     
     `alias dc-drush='docker-compose exec --user 1000 php drush`
     
@@ -79,9 +79,9 @@ It contains source files for php images and base docker-compose.yml.
 
 1. Compile php image.
        
-    `docker build -t local/train-php docker-for-work/drupal-php/7.0`
+    `docker build -t local/train-php docker-for-work/docker/drupal-php/7.0`
        
-2. Prepare site root directory and run docker containers.
+2. Prepare the site root directory and run docker containers.
 
     `cp docker-for-work/docker-compose/train/docker-compose.yml path/to/site-root`
     
