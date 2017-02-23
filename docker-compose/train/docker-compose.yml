@@ -15,6 +15,8 @@ services:
     environment:
       PHP_SITE_NAME_RN: rn
       PHP_HOST_NAME_RN: rn.home:8000
+      PHP_SITE_NAME_TT: tt
+      PHP_HOST_NAME_TT: tt.home:8000
 #      PHP_DOCROOT: public # Relative path inside the /var/www/html/ directory.
       PHP_SENDMAIL_PATH: /usr/sbin/sendmail -t -i -S mailhog:1025
       PHP_XDEBUG_ENABLED: 1 # Set 1 to enable.
@@ -24,7 +26,7 @@ services:
   nginx:
     image: wodby/drupal-nginx
     environment:
-      NGINX_SERVER_NAME: rn.home
+      NGINX_SERVER_NAME: rn.home tt.home
       NGINX_UPSTREAM_NAME: php
 #      NGINX_DOCROOT: public # Relative path inside the /var/www/html/ directory.
       DRUPAL_VERSION: 8 # Allowed: 7, 8.

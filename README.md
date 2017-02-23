@@ -75,7 +75,7 @@ It contains source files for php images and base docker-compose.yml.
     
 5. Don't forget about `dc-drush devify`.
     
-**Configure train sites**
+**Configure train and triptile sites**
 
 1. Compile php image.
        
@@ -97,20 +97,23 @@ It contains source files for php images and base docker-compose.yml.
     
     Use it every time when you want to run them to make your sites available.
     
-    Add new record to your /etc/hosts file to make the site domain matching to localhost.
+    Add new record to your /etc/hosts file to make the site domains matching to localhost.
     
     `127.0.0.1      rn.home`
+    `127.0.0.1      tt.home`
     
-    Here `rn.home` corresponds to `PHP_HOST_NAME_RN` and `NGINX_SERVER_NAME` options in the docker-compose.yml file.
-    Open [http://rn.home:8000](http://rn.home:8000) in your browser, it must show `File not found` error.
+    Here `rn.home` and `tt.home` corresponds to `PHP_HOST_NAME_RN`, `PHP_HOST_NAME_TT` and `NGINX_SERVER_NAME` options in the docker-compose.yml file.
+    Open [http://rn.home:8000](http://rn.home:8000) or [http://tt.home:8000](http://tt.home:8000) in your browser, it must show `File not found` error.
   
-3. Configure Drush and Console.
+3. Configure Drush, Drupal Console and Composer.
 
-    Drush and Console are installed to the php image and will be available only from the php container.
+    Drush, Drupal Console and Composer are installed inside the php image and will be available only from the php container.
    
    `docker-compose exec --user 1000 php drush cr`
    
    `docker-compose exec --user 1000 php drupal list`
+   
+   `docker-compose exec --user 1000 php composer help`
    
    You can create aliases for these commands in ~/.bashrc file. Open ~/.bashrc in a editor, add next line to the end of the file:
    
@@ -118,17 +121,39 @@ It contains source files for php images and base docker-compose.yml.
    
    `alias dc-drupal='docker-compose exec --user 1000 php drupal`
    
-   So now you can get Drush help or list available commands for Console using:
+   `alias dc-composer='docker-compose exec --user 1000 php composer`
+   
+   So now you can get Drush help, Composer help or list available commands for Console using:
    
    `dc-drush help`
    
    `dc-drupal list`
    
-4. Now clone the repository to the site root
+   `dc-composer help`
+   
+   Use site aliases to performa a drush command on specific site. Aliases are `@rn` and `@tt`. For example:
+   
+   `dc-drush @rn cr`
+   
+   `dc-drush @tt cr`
+   
+4. Create database for your site using PhpMyAdmin. It is available at [http://localhost:8001](http://localhost:8001).
+   Now you can import site database using phpmyadmin or using command line directly from mariadb container.
+   If you use command like than place the database dump file in `docker-runtime/mariadb-init`. This path is mapped to
+   `/docker-entrypoint-initdb.d` inside mariadb container.
+   
+   `docker-compose exec mariadb sh`
+   `mysql -u root -p my_db < /docker-entrypoint-initdb.d/my_db.sql`
+   
+5. Now clone the repository to the site root
 
-    `git clone git@bitbucket.org:sergei_bril/train_booking.git .`
+   `git clone git@bitbucket.org:sergei_bril/train_booking.git .`
+   
+   Run `dc-composer install` in order to load all dependencies of the project.
     
-    and open [http://rn.home:8000](http://rn.home:8000) to install Drupal 8. Database username is root, password can be configured in docker-compose.yml (default it root). When configure database, set `mariadb` as database host in Advanced section.
-    
-    PhpMyAdmin is available at [http://localhost:8001](http://localhost:8001)`.
+   Configure your sites.php file. If you use same domains as in this instruction than the file should contain next
+   
+   `$sites['8000.tt.home'] = 'triptile.com';`
+     
+   Also copy provided settings.php and services.yml files into appropriate directory. Change database config in the settings.php if necessary.
    
