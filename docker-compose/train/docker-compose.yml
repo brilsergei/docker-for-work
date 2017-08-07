@@ -2,7 +2,7 @@ version: "2"
 
 services:
   mariadb:
-    image: wodby/drupal-mariadb
+    image: wodby/drupal-mariadb:1.0.0
     environment:
       MYSQL_ROOT_PASSWORD: root
 #    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci # The simple way to override the mariadb config.
@@ -24,7 +24,7 @@ services:
       - ./:/var/www/html
 
   nginx:
-    image: wodby/drupal-nginx
+    image: wodby/drupal-nginx:1.0.0
     environment:
       NGINX_SERVER_NAME: rn.home tt.home
       NGINX_UPSTREAM_NAME: php
