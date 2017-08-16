@@ -3,6 +3,9 @@ MAINTAINER brilsergei <brilsergei@gmail.com>
 ARG HOST_UID=1000
 ARG HOST_GID=1000
 
+# Add our custom aliases
+COPY default.aliases.drushrc.php /etc/drush/site-aliases/
+
 # Create group and user with same GID and UID as on host machine and assign it www-data group
 RUN addgroup -g $HOST_GID host-group && \
 	adduser -u $HOST_UID -D -G host-group host-user && \
