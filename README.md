@@ -80,27 +80,23 @@ It contains source files for php images and base docker-compose.yml.
     
 5. Don't forget about `dc-drush devify`.
     
-**Configure train and triptile sites**
+**Configure train sites**
 
-1. Working directory.
-
-    Create new directory for project and clone project repository to the directory.
+1. Create new directory for the project and clone project repository to the created directory:
 
     `mkdir project-dir`
 
     `git clone git@bitbucket.org:travelallrussia/drupal-8.git project-dir`
        
-2. Prepare the site root directory and run docker containers.
+2. Prepare and run docker containers:
 
-    `cp docker-for-work/docker-compose/train/docker-compose.yml project-dir`
+    `cp docker-for-work/docker-compose/train/* project-dir`
     
-    `cp docker-for-work/docker-compose/train/.env project-dir`
-    
-    `cp docker-for-work/docker-compose/train/Makefile project-dir`
+    `cp docker-for-work/docker-compose/train/.* project-dir`
     
     The files are ready to use. But some options can be changed to your convenience.
     
-    Create directory where you can place database backup so, that it will be available inside the mariadb container.
+    Create directory where you can place database backups so, that they will be available inside the mariadb container.
     
     `cd project-dir && mkdir docker-runtime && mkdir docker-runtime/mariadb-init`
     
@@ -110,7 +106,11 @@ It contains source files for php images and base docker-compose.yml.
     
     Use it every time when you want to run them to make your sites available.
     
-    Add new record to your /etc/hosts file to make the site domains matching to localhost.
+3.  Install all dependencies using Composer:
+    
+    `docker-compose exec --user php composer install`
+    
+4.  Add new records to your /etc/hosts file to make the site domains matching to localhost:
     
     `127.0.0.1      rn.home`
     `127.0.0.1      rt.home`
@@ -120,18 +120,16 @@ It contains source files for php images and base docker-compose.yml.
     
     Open [http://rn.home:8000](http://rn.home:8000), [http://rt.home:8000](http://rt.home:8000) or
     [http://rtt.home:8000](http://rtt.home:8000) in your browser, it must show Drupal installation page. Do not install
-    Drupal, just make sure that all is working ok.
+    Drupal, just make sure that all is working correctly.
     
     Do not change host names because they are hardcoded in configuration files.
     
-3. Create databases for your sites.
-
-    PhpMyAdmin is available at [http://pma.rn.home:8000](http://pma.rn.home:8000) with root login. Create databases
-    `rn_1`, `rt_1`, `rtt_1` in PMA interface. It is recommended to create few databases for each site so, you can switch
-    databases when work on different git branches in parallel.
+5. Create databases for your sites. PhpMyAdmin is available at [http://pma.rn.home:8000](http://pma.rn.home:8000) with
+    root login. Create databases `rn_1`, `rt_1`, `rtt_1` in PMA interface. It is recommended to create few databases for
+    each site so, you can switch databases when work on different git branches at the same time.
     
-    Download and import site databases using command line from mariadb container. Ask IT team for database dumps,
-    extract them at `docker-runtime/mariadb-init`. Login to mariadb and import the dumps.
+    Download and import site databases using command line from mariadb container. Ask IT team for database dumps and
+    place them at `docker-runtime/mariadb-init`. Login to mariadb and import the dumps:
      
     `docker-compose exec mariadb sh`
     
@@ -141,9 +139,7 @@ It contains source files for php images and base docker-compose.yml.
     
     `mysql -u root -p rtt_1 < /docker-entrypoint-initdb.d/rtt-dev.sql`
     
-4. Place site configuration files.
-
-    Download site configs (ask IT team for it) and extract files into directory `dev-setttings` then copy configuration
+4. Download site configs (ask IT team for it) and extract files into directory `dev-setttings` then copy configuration
     files and create necessary directories.
     
     `cp dev-settings/rn/* project-dir/sites/default && mkdir project-dir/sites/default/files`
@@ -154,9 +150,7 @@ It contains source files for php images and base docker-compose.yml.
     
     `cp dev-settings/sites/* project-dir/sites`
   
-5. Configure Drush, Drupal Console and Composer.
-
-    Drush, Drupal Console and Composer are installed inside the php image and will be available only from the php
+5. Drush, Drupal Console and Composer are installed inside the php image and will be available only from the php
     container.
    
    `docker-compose exec --user 1000 php drush cr`
@@ -165,8 +159,8 @@ It contains source files for php images and base docker-compose.yml.
    
    `docker-compose exec --user 1000 php composer help`
    
-   You can create aliases for these commands in ~/.bashrc file. Open ~/.bashrc in a editor, add next line to the end of
-   the file:
+   You can create aliases for these commands in ~/.bashrc file. Open ~/.bashrc in an editor, add next lines to the end
+   of the file:
    
    `alias dc-drush='docker-compose exec --user 1000 php drush`
    
@@ -174,7 +168,7 @@ It contains source files for php images and base docker-compose.yml.
    
    `alias dc-composer='docker-compose exec --user 1000 php composer`
    
-   So now you can get Drush help, Composer help or list available commands for Console using:
+   So, now you can get Drush help, Composer help or list available commands for Console using:
    
    `dc-drush help`
    
@@ -186,7 +180,7 @@ It contains source files for php images and base docker-compose.yml.
    
    `mkdir project-dir/drush/site-aliases && cp dev-settings/drush/* project-dir/drush/site-aliases`
    
-   Use site aliases to perform a drush command on specific site. Aliases are `@rn`, `@rt` and `@rtt`. For example:
+   Use site aliases to perform a drush command on a specific site. Aliases are `@rn`, `@rt` and `@rtt`. For example:
    
    `dc-drush @rn cr`
    
