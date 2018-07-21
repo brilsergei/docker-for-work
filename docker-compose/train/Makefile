@@ -1,38 +1,9 @@
-include .env
+include docker.mk
 
-.PHONY: up down stop prune ps shell drush logs
+.PHONY: test
 
-default: up
+DRUPAL_VER ?= 8
+PHP_VER ?= 7.2
 
-DRUPAL_ROOT ?= /var/www/html/web
-
-up:
-	@echo "Starting up containers for $(PROJECT_NAME)..."
-	docker-compose pull --parallel
-	docker-compose up -d --remove-orphans
-
-down: stop
-
-stop:
-	@echo "Stopping containers for $(PROJECT_NAME)..."
-	@docker-compose stop
-
-prune:
-	@echo "Removing containers for $(PROJECT_NAME)..."
-	@docker-compose down -v
-
-ps:
-	@docker ps --filter name='$(PROJECT_NAME)*'
-
-shell:
-	docker exec -ti $(shell docker ps --filter name='$(PROJECT_NAME)_php' --format "{{ .ID }}") sh
-
-drush:
-	docker exec $(shell docker ps --filter name='$(PROJECT_NAME)_php' --format "{{ .ID }}") drush -r $(DRUPAL_ROOT) $(filter-out $@,$(MAKECMDGOALS))
-
-logs:
-	@docker-compose logs -f $(filter-out $@,$(MAKECMDGOALS))
-
-# https://stackoverflow.com/a/6273809/1826109
-%:
-	@:
+test:
+	cd ./test/$(DRUPAL_VER) && PHP_VER=$(PHP_VER) ./run.sh
