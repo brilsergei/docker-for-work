@@ -59,7 +59,7 @@ services:
 #      - ./:/var/www/html:cached # User-guided caching
 #      - docker-sync:/var/www/html # Docker-sync
     labels:
-      - 'traefik.backend=nginx'
+      - 'traefik.backend=trains_nginx'
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:${PROJECT_BASE_URL_RN},${PROJECT_BASE_URL_RT},${PROJECT_BASE_URL_RTT}'
 
@@ -67,7 +67,7 @@ services:
     image: mailhog/mailhog
     container_name: "${PROJECT_NAME}_mailhog"
     labels:
-      - 'traefik.backend=mailhog'
+      - 'traefik.backend=train_mailhog'
       - 'traefik.port=8025'
       - 'traefik.frontend.rule=Host:mailhog.${PROJECT_BASE_URL}'
 
@@ -140,7 +140,7 @@ services:
       PHP_UPLOAD_MAX_FILESIZE: 1G
       PHP_MAX_INPUT_VARS: 1G
     labels:
-      - 'traefik.backend=pma'
+      - 'traefik.backend=trains_pma'
       - 'traefik.port=80'
       - 'traefik.frontend.rule=Host:pma.${PROJECT_BASE_URL}'
 
@@ -248,19 +248,19 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     labels:
-      - 'traefik.backend=portainer'
+      - 'traefik.backend=trains_portainer'
       - 'traefik.port=9000'
       - 'traefik.frontend.rule=Host:portainer.${PROJECT_BASE_URL}'
 
-  traefik:
-    image: traefik
-    container_name: "${PROJECT_NAME}_traefik"
-    command: -c /dev/null --web --docker --logLevel=INFO
-    ports:
-      - '8000:80'
+#  traefik:
+#    image: traefik
+#    container_name: "${PROJECT_NAME}_traefik"
+#    command: -c /dev/null --web --docker --logLevel=INFO
+#    ports:
+#      - '8000:80'
 #      - '8080:8080' # Dashboard
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
 
 #volumes:
 ## Docker-sync for macOS users
